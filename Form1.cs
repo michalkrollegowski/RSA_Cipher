@@ -20,36 +20,30 @@ namespace RSA_Cipher
         }
 
         public class RSA : Creating_Keys
-        {
-            private BigInteger n;
-            private BigInteger public_e;
-            private BigInteger private_e;
-            private BigInteger d;          
+        {         
 
-            public void PublicKey(BigInteger n, BigInteger e)
+            public static (BigInteger,BigInteger) PublicKey()
             {
-                //Generowanie 2 liczb o długości 2048 bitów
-                var (p, q) = GeneratePrimes(2048);
-                n = p * q;
-                BigInteger nphi = CalculatePhi(p, q);
-                e = FindE(nphi);
 
-                this.n = n;
-                public_e = e;
+            //Generowanie 2 liczb o długości 2048 bitów
+            var (p, q) = GeneratePrimes(2048);
+                BigInteger n = p * q;
+                BigInteger nphi = CalculatePhi(p, q);
+                BigInteger e = FindE(nphi);
+
+                return (n, e);
             }
-            private void PrivateKey(BigInteger n, BigInteger e, BigInteger d) 
+            private static (BigInteger, BigInteger) PrivateKey() 
             {
 
                 //Generowanie 2 liczb o długości 2048 bitów
                 var (p, q) = GeneratePrimes(2048);
-                n = p * q;
+                BigInteger n = p * q;
                 BigInteger nphi = CalculatePhi(p, q);
-                e = FindE(nphi);
-                d = FindD(e, nphi);
+                BigInteger e = FindE(nphi);
+                BigInteger d = FindD(e, nphi);
 
-                this.n = n;
-                this.d = d;
-                private_e = e;
+                return (n, d);
             }
 
         }

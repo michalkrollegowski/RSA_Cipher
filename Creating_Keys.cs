@@ -11,12 +11,41 @@ namespace RSA_Cipher
     public class Creating_Keys
     {
         //Pierwiastkowanie na dużych liczbach
-        private static BigInteger Sqrt(BigInteger n)
+        public static BigInteger Sqrt(BigInteger n)
         {
-            if (n == 0) return 0;
-            return (BigInteger)Math.Sqrt((double)n);
-        }
+            if (n < 0)
+            {
+                throw new ArgumentOutOfRangeException("Cannot calculate the square root of a negative number.");
+            }
 
+            if (n == 0) return 0;
+            if (n == 1) return 1;
+
+            BigInteger low = 0;
+            BigInteger high = n;
+            BigInteger mid;
+
+            while (high - low > 1)
+            {
+                mid = (high + low) / 2;
+                BigInteger midSquared = mid * mid;
+
+                if (midSquared == n)
+                {
+                    return mid;
+                }
+                else if (midSquared < n)
+                {
+                    low = mid;
+                }
+                else
+                {
+                    high = mid;
+                }
+            }
+
+            return low;
+        }
         // Sprawdzanie, czy liczba jest prawie pierwiastkiem z iloczynu p i q
         private static bool IsApproximatelySqrtN(BigInteger p, BigInteger q)
         {
