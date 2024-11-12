@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.encryption_field = new System.Windows.Forms.TextBox();
             this.encryption_label = new System.Windows.Forms.Label();
             this.rsa_label = new System.Windows.Forms.Label();
             this.decryption_field = new System.Windows.Forms.TextBox();
@@ -37,13 +37,13 @@
             this.decrypting_button = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // textBox1
+            // encryption_field
             // 
-            this.textBox1.Location = new System.Drawing.Point(64, 95);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(190, 102);
-            this.textBox1.TabIndex = 0;
+            this.encryption_field.Location = new System.Drawing.Point(64, 95);
+            this.encryption_field.Multiline = true;
+            this.encryption_field.Name = "encryption_field";
+            this.encryption_field.Size = new System.Drawing.Size(701, 155);
+            this.encryption_field.TabIndex = 0;
             // 
             // encryption_label
             // 
@@ -71,7 +71,7 @@
             this.decryption_field.Location = new System.Drawing.Point(64, 293);
             this.decryption_field.Multiline = true;
             this.decryption_field.Name = "decryption_field";
-            this.decryption_field.Size = new System.Drawing.Size(190, 102);
+            this.decryption_field.Size = new System.Drawing.Size(701, 163);
             this.decryption_field.TabIndex = 3;
             // 
             // decryption_label
@@ -85,7 +85,7 @@
             // 
             // encryption_button
             // 
-            this.encryption_button.Location = new System.Drawing.Point(188, 216);
+            this.encryption_button.Location = new System.Drawing.Point(690, 256);
             this.encryption_button.Name = "encryption_button";
             this.encryption_button.Size = new System.Drawing.Size(75, 23);
             this.encryption_button.TabIndex = 5;
@@ -95,26 +95,26 @@
             // 
             // decrypting_button
             // 
-            this.decrypting_button.Location = new System.Drawing.Point(188, 417);
+            this.decrypting_button.Location = new System.Drawing.Point(690, 462);
             this.decrypting_button.Name = "decrypting_button";
             this.decrypting_button.Size = new System.Drawing.Size(75, 23);
             this.decrypting_button.TabIndex = 6;
             this.decrypting_button.Text = "Decrypt";
             this.decrypting_button.UseVisualStyleBackColor = true;
-            this.decrypting_button.Click += new System.EventHandler(this.decrypting_button_Click);
+            this.decrypting_button.Click += new System.EventHandler(this.decryption_button_Click);
             // 
             // window_application
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(328, 476);
+            this.ClientSize = new System.Drawing.Size(892, 569);
             this.Controls.Add(this.decrypting_button);
             this.Controls.Add(this.encryption_button);
             this.Controls.Add(this.decryption_label);
             this.Controls.Add(this.decryption_field);
             this.Controls.Add(this.rsa_label);
             this.Controls.Add(this.encryption_label);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.encryption_field);
             this.Name = "window_application";
             this.Text = "RSA Cipher";
             this.ResumeLayout(false);
@@ -124,7 +124,7 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox encryption_field;
         private System.Windows.Forms.Label encryption_label;
         private System.Windows.Forms.Label rsa_label;
         private System.Windows.Forms.TextBox decryption_field;
