@@ -44,48 +44,6 @@ namespace RSA_Cipher
                 return (n, d);
             }
 
-            
-            public static Dictionary<int, char> intToCharMap = new Dictionary<int, char>();
-            public static Dictionary<char, BigInteger> charToBigIntMap = new Dictionary<char, BigInteger>();
-            BigInteger baseValue = 1;
-            static RSA()
-            {
-
-                // Tworzymy mapowanie z liter na liczby
-                char[] alphabet = new char[]
-                {
-            'A', 'Ą', 'B', 'C', 'Ć', 'D', 'E', 'Ę', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'Ł',
-            'M', 'N', 'Ń', 'O', 'Ó', 'P', 'Q', 'R', 'S', 'Ś', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'Ź', 'Ż'
-                };
-
-                for (int i = 0; i < alphabet.Length; i++)
-                {
-                    charToBigIntMap[alphabet[i]] = i;
-                    intToCharMap[i] = alphabet[i];
-                }
-                foreach (char c in alphabet)
-                {
-                    charToBigIntMap[c] = baseValue;
-                    baseValue++;
-                }
-            }
-                // Tworzenie mapy znaków na liczby
-            // Metoda szyfrowania
-            // Szyfrowanie pojedynczego znaku
-            public BigInteger EncryptChar(char character, BigInteger e, BigInteger n)
-            {
-                BigInteger charValue = charToBigIntMap[character];  // Pobieramy wartość liczbową znaku
-                BigInteger encryptedChar = BigInteger.ModPow(charValue, e, n);
-                return encryptedChar;
-            }
-
-            // Deszyfrowanie pojedynczego znaku
-            public char DecryptChar(BigInteger encryptedChar, BigInteger d, BigInteger n)
-            {
-                BigInteger decryptedCharValue = BigInteger.ModPow(encryptedChar, d, n);
-                return charToBigIntMap.FirstOrDefault(x => x.Value == decryptedCharValue).Key;
-            }
-
 
         }
 
@@ -121,14 +79,14 @@ namespace RSA_Cipher
             if (isProperInput)
             {
                 encryptedmessage = new List<BigInteger>();
-
-                foreach (char character in input_text)
+                byte[] utf8Bytes = Encoding.UTF8.GetBytes(input_text);
+                foreach (BigInteger character in utf8Bytes)
                 {
-                    BigInteger encryptedChar = RSA.Encrypt(character, publicKey.e, publicKey.n);
+                    BigInteger encryptedChar = BigInteger.ModPow(encryptedChar, publicKey.e, publicKey.n);
                     encryptedmessage.Add(encryptedChar);
                 }
 
-                decryption_field.Text = string.Join(" ", encryptedmessage);
+                decryption_field.Text = string.Join("", encryptedmessage);
             }
             else
             {
@@ -142,7 +100,6 @@ namespace RSA_Cipher
             encryption_field.Text = "";  // Wyczyść pole do wprowadzenia tekstu szyfrowanego
             string input_text = decryption_field.Text;
             bool isProperInput = true;
-            List<BigInteger> encryptedMessage = new List<BigInteger>();
 
             foreach (string item in input_text.Split(' '))
             {
@@ -151,22 +108,28 @@ namespace RSA_Cipher
                     isProperInput = false;
                     break;
                 }
-                encryptedMessage.Add(result);
+                encryptedmessage.Add(result);
             }
 
-            if (string.IsNullOrEmpty(input_text) || !isProperInput)
+            if (string.IsNullOrEmpty(input_text))
             {
                 isProperInput = false;
             }
 
             if (isProperInput)
             {
+                decryptedmessage = new List<BigInteger>();
                 StringBuilder decryptedText = new StringBuilder();
 
-                foreach (BigInteger encryptedChar in encryptedMessage)
+
+                foreach (BigInteger encryptedChar in encryptedmessage)
                 {
-                    char decryptedChar = RSA.Decrypt(encryptedChar, privateKey.d, privateKey.n);
-                    decryptedText.Append(decryptedChar);
+                    char decryptedChar = BigInteger.ModPow(encryptedChar, privateKey.d, privateKey.n);
+                    decryptedmessage.Add(decryptedChar);
+                }
+                foreach (BigInteger decryptedChar in decryptedmessage)
+                {
+                    decryptedText.Append(Encoding.UTF8.GetString(decryptedChar));
                 }
 
                 encryption_field.Text = decryptedText.ToString();
