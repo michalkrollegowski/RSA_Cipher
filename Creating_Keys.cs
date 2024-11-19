@@ -145,42 +145,21 @@ namespace RSA_Cipher
         }
 
         // Funkcja do znalezienia liczby e, która jest względnie pierwsza z phi(n)
-        public static BigInteger FindE(BigInteger phiN)
+        public static BigInteger FindE(BigInteger phi)
         {
-            BigInteger e = 2;  // Najmniejsza wartość większa niż 1
-
-            while (e < phiN)
+            BigInteger e = 65537;
+            while (BigInteger.GreatestCommonDivisor(e, phi) != 1)
             {
-                if (GCD(e, phiN) == 1)  // e musi być względnie pierwsza z phi(n)
-                {
-                    return e;  // Znaleziono odpowiednią liczbę e
-                }
-                e++;
+                e += 2;
             }
-
-            throw new Exception("Nie udało się znaleźć odpowiedniego e");
+            return e;
         }
         // Funkcja do znalezienia liczby d, która jest odwrotnością modularną liczby e
         //na bazie algorytmu Euklidesa rozszerzonego, która zwraca odwrotność modularną liczby e
-        public static BigInteger FindD (BigInteger e, BigInteger phiN) 
+        // Find d, the modular inverse of e mod phi
+        public static BigInteger FindD(BigInteger e, BigInteger phi)
         {
-            
-            BigInteger t = 0, newT = 1;
-            BigInteger r = phiN, newR = e;
-
-            while (newR != 0)
-            {
-                BigInteger quotient = r / newR;
-
-                // Oblicza t i r za pomocą prostej wymiany
-                (t, newT) = (newT, t - quotient * newT);
-                (r, newR) = (newR, r - quotient * newR);
-            }
-
-            if (r > 1) throw new Exception("Nie istnieje odwrotność modulo.");
-
-            return t < 0 ? t + phiN : t;
-            
+            return BigInteger.ModPow(e, -1, phi);
         }
     }
 }
