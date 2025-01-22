@@ -9,202 +9,185 @@ namespace RSA_Cipher
 {
     public partial class window_application : Form
     {
+        private RSA rsa;
+
         public window_application()
         {
             InitializeComponent();
+            rsa = new RSA();
+            rsa.GenerateKeys();
+            DisplayKeys();
         }
 
-        public class RSA : Creating_Keys
+        private void DisplayKeys()
         {
-            private static BigInteger p, q, n, nphi, e, d;
-
-            public static (BigInteger n, BigInteger e) GeneratePublicKey()
-            {
-                if (p == 0 || q == 0)
-                {
-                    (p, q) = GeneratePrimes(2048);
-                }
-
-                n = p * q;
-                nphi = CalculatePhi(p, q);
-                e = FindE(nphi);
-
-                return (n, e);
-            }
-
-            public static (BigInteger n, BigInteger d) GeneratePrivateKey()
-            {
-                if (p == 0 || q == 0)
-                {
-                    (p, q) = GeneratePrimes(2048);
-                }
-
-                n = p * q;
-                nphi = CalculatePhi(p, q);
-                e = FindE(nphi);
-                d = FindD(e, nphi);
-
-                return (n, d);
-            }
+            public_key.Text = $"Public Key: (n = {rsa.PublicKeyN}, e = {rsa.PublicKeyE})";
+            private_key.Text = $"Private Key: (n = {rsa.PublicKeyN}, d = {rsa.PrivateKeyD})";
         }
 
-        private (BigInteger n, BigInteger e) publicKey = RSA.GeneratePublicKey();
-        private (BigInteger n, BigInteger d) privateKey = RSA.GeneratePrivateKey();
-        private List<BigInteger> encryptedmessage;
-        private List<BigInteger> decryptedmessage;
-        static char[] alphabet = new char[]
-        {
-            'A', 'Ą', 'B', 'C', 'Ć', 'D', 'E', 'Ę', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'Ł',
-            'M', 'N', 'Ń', 'O', 'Ó', 'P', 'Q', 'R', 'S', 'Ś', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'Ź', 'Ż'
-        };
-
-        // Szyfrowanie wiadomości
         private void encryption_button_Click(object sender, EventArgs e)
         {
-            decryption_field.Text = "";  // Wyczyść pole do wprowadzenia tekstu szyfrowanego
-            string input_text = encryption_field.Text.ToUpper();
-            bool isProperInput = true;
-
-            // Sprawdzamy, czy wiadomość zawiera tylko dozwolone znaki
-            foreach (char c in input_text)
+            string message = encryption_field.Text.ToUpper(); // Zamiana na wielkie litery
+            if (!IsValidMessage(message))
             {
-                if (!alphabet.Contains(c))
-                {
-                    isProperInput = false;
-                    break;
-                }
+                MessageBox.Show("Tekst może zawierać tylko alfabet polski z literami V,Q i X.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
-            if (string.IsNullOrEmpty(input_text))
-            {
-                isProperInput = false;
-            }
-
-            if (isProperInput)
-            {
-                encryptedmessage = new List<BigInteger>();
-                byte[] utf8Bytes = Encoding.UTF8.GetBytes(input_text);
-
-                // Rozmiar bloku zależny od długości klucza (dla RSA 2048-bitowego to 256 bajtów)
-                int blockSize = publicKey.n.ToByteArray().Length;
-
-                // Podzielamy wiadomość na bloki
-                for (int i = 0; i < utf8Bytes.Length; i += blockSize - 3)  // -3 na padding
-                {
-                    byte[] block = utf8Bytes.Skip(i).Take(blockSize - 3).ToArray();
-
-                    // Dodajemy padding PKCS#1 do danych
-                    byte[] paddedBlock = AddPKCS1Padding(block, blockSize);
-
-                    // Konwertujemy blok na BigInteger
-                    BigInteger blockInt = new BigInteger(paddedBlock.Reverse().ToArray()); // Konwersja w odwrotnej kolejności bajtów
-                    BigInteger encryptedBlock = BigInteger.ModPow(blockInt, publicKey.e, publicKey.n);
-                    encryptedmessage.Add(encryptedBlock);
-                }
-
-                // Wyświetl zaszyfrowaną wiadomość
-                decryption_field.Text = string.Join(" ", encryptedmessage);
-            }
-            else
-            {
-                throw new Exception("Niepoprawna wiadomość");
-            }
+            byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+            List<BigInteger> cipherBlocks = rsa.Encrypt(messageBytes);
+            decryption_field.Text = string.Join("|", cipherBlocks);
         }
-
 
         private void decryption_button_Click(object sender, EventArgs e)
         {
-            encryption_field.Text = "";  // Wyczyść pole do wprowadzenia tekstu odszyfrowanego
-            string input_text = decryption_field.Text;
-            bool isProperInput = true;
-            encryptedmessage = new List<BigInteger>();
-
-            // Sprawdzamy, czy dane wejściowe są poprawne (czy to liczby BigInteger)
-            foreach (string item in input_text.Split(' '))
+            string cipherText = decryption_field.Text;
+            if (!cipherText.All(c => char.IsDigit(c) || c == '|'))
             {
-                if (!BigInteger.TryParse(item, out BigInteger result))
-                {
-                    isProperInput = false;
-                    break;
-                }
-                encryptedmessage.Add(result);
+                MessageBox.Show("Pole może zawierać tylko liczby oddzielone przecinkami.", "Błąd", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
-            if (string.IsNullOrEmpty(input_text))
-            {
-                isProperInput = false;
-            }
-
-            if (isProperInput)
-            {
-                decryptedmessage = new List<BigInteger>();
-                StringBuilder decryptedText = new StringBuilder();
-
-                // Deszyfrowanie RSA z paddingiem
-                foreach (BigInteger encryptedChar in encryptedmessage)
-                {
-                    BigInteger decryptedChar = BigInteger.ModPow(encryptedChar, privateKey.d, privateKey.n);
-                    decryptedmessage.Add(decryptedChar);
-                }
-
-                // Konwertowanie danych na tekst
-                foreach (BigInteger decryptedChar in decryptedmessage)
-                {
-                    byte[] byteArray = decryptedChar.ToByteArray();
-                    byte[] unpadded = RemovePKCS1Padding(byteArray); // Usuwamy padding
-                    decryptedText.Append(Encoding.UTF8.GetString(unpadded));
-                }
-
-                encryption_field.Text = decryptedText.ToString();
-            }
-            else
-            {
-                throw new Exception("Niepoprawny format wiadomości");
-            }
+            string[] cipherStrings = cipherText.Split(new[] { "|" }, StringSplitOptions.RemoveEmptyEntries);
+            List<BigInteger> cipherBlocks = cipherStrings.Select(s => BigInteger.Parse(s)).ToList();
+            byte[] decryptedBytes = rsa.Decrypt(cipherBlocks);
+            string decryptedMessage = Encoding.UTF8.GetString(decryptedBytes).Trim('\0');
+            encryption_field.Text = decryptedMessage;
         }
-        private byte[] AddPKCS1Padding(byte[] data, int blockSize)
+        private void los_button_Click(object sender, EventArgs e)
         {
-            // Obliczamy, ile bajtów paddingu musimy dodać
-            int paddingSize = blockSize - data.Length - 3; // 3 bajty to 0x00 i dwa bajty paddingu 0xFF
-            if (paddingSize < 8)
-            {
-                throw new Exception("Dane są zbyt duże, aby pomieścić je w jednym bloku.");
-            }
-
-            // Tworzymy nową tablicę na dane z paddingiem
-            byte[] paddedData = new byte[blockSize];
-
-            // Wypełniamy pierwsze 'paddingSize' bajtów tablicy 0xFF
-            for (int i = 0; i < paddingSize; i++)
-            {
-                paddedData[i] = 0xFF;
-            }
-
-            // Dodajemy separator 0x00
-            paddedData[paddingSize] = 0x00;
-
-            // Kopiujemy dane w miejsce po paddingu
-            Array.Copy(data, 0, paddedData, paddingSize + 1, data.Length);
-
-            return paddedData;
+            rsa.GenerateKeys();
+            DisplayKeys();
         }
-
-        private byte[] RemovePKCS1Padding(byte[] data)
+        private bool IsValidMessage(string message)
         {
-            // Szukamy separatora 0x00
-            int separatorIndex = Array.IndexOf(data, (byte)0x00);
+            const string allowedChars = "AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻXQV ";
+            return message.All(c => allowedChars.Contains(c));
+        }
+    }
 
-            if (separatorIndex == -1)
+    public class RSA
+    {
+        public BigInteger PublicKeyN { get; private set; }
+        public BigInteger PublicKeyE { get; private set; }
+        public BigInteger PrivateKeyD { get; private set; }
+
+        private static Random random = new Random();
+
+        public void GenerateKeys()
+        {
+            BigInteger p = GetRandomPrime(100, 10000);
+            BigInteger q = GetRandomPrime(100, 10000);
+
+            PublicKeyN = p * q;
+            BigInteger phi = (p - 1) * (q - 1);
+
+            PublicKeyE = 65537;
+            if (BigInteger.GreatestCommonDivisor(PublicKeyE, phi) != 1)
             {
-                throw new Exception("Brak separatora PKCS#1.");
+                throw new Exception("Nie można znaleźć odpowiedniego klucza publicznego e.");
             }
 
-            // Pobieramy dane po separatorze
-            byte[] unpaddedData = new byte[data.Length - separatorIndex - 1];
-            Array.Copy(data, separatorIndex + 1, unpaddedData, 0, unpaddedData.Length);
-
-            return unpaddedData;
+            PrivateKeyD = ModularInverse(PublicKeyE, phi);
         }
 
+        public List<BigInteger> Encrypt(byte[] message)
+        {
+            List<BigInteger> cipherBlocks = new List<BigInteger>();
+            int blockSize = PublicKeyN.ToByteArray().Length - 1;
+
+            for (int i = 0; i < message.Length; i += blockSize)
+            {
+                byte[] block = new byte[blockSize];
+                Array.Copy(message, i, block, 0, Math.Min(blockSize, message.Length - i));
+
+                BigInteger blockValue = new BigInteger(block.Reverse().ToArray());
+                cipherBlocks.Add(BigInteger.ModPow(blockValue, PublicKeyE, PublicKeyN));
+            }
+            return cipherBlocks;
+        }
+
+        public byte[] Decrypt(List<BigInteger> cipherBlocks)
+        {
+            List<byte> plainText = new List<byte>();
+            int blockSize = PublicKeyN.ToByteArray().Length - 1;
+
+            foreach (var cipherBlock in cipherBlocks)
+            {
+                BigInteger decryptedBlock = BigInteger.ModPow(cipherBlock, PrivateKeyD, PublicKeyN);
+                byte[] blockBytes = decryptedBlock.ToByteArray();
+                blockBytes = blockBytes.Reverse().ToArray();
+
+                if (blockBytes.Length < blockSize)
+                {
+                    byte[] paddedBlock = new byte[blockSize];
+                    Array.Copy(blockBytes, 0, paddedBlock, blockSize - blockBytes.Length, blockBytes.Length);
+                    plainText.AddRange(paddedBlock);
+                }
+                else
+                {
+                    plainText.AddRange(blockBytes);
+                }
+            }
+
+            return plainText.ToArray();
+        }
+
+        private BigInteger GetRandomPrime(int min, int max)
+        {
+            List<int> primes = GetPrimesInRange(min, max);
+            int index = random.Next(primes.Count);
+            return primes[index];
+        }
+
+        private List<int> GetPrimesInRange(int min, int max)
+        {
+            List<int> primes = new List<int>();
+            for (int i = min; i <= max; i++)
+            {
+                if (IsPrime(i))
+                    primes.Add(i);
+            }
+            return primes;
+        }
+
+        private bool IsPrime(int number)
+        {
+            if (number < 2) return false;
+            if (number == 2) return true;
+            if (number % 2 == 0) return false;
+
+            int limit = (int)Math.Sqrt(number);
+            for (int i = 3; i <= limit; i += 2)
+            {
+                if (number % i == 0)
+                    return false;
+            }
+            return true;
+        }
+
+        private BigInteger ModularInverse(BigInteger a, BigInteger m)
+        {
+            BigInteger m0 = m, t, q;
+            BigInteger x0 = 0, x1 = 1;
+
+            if (m == 1)
+                return 0;
+
+            while (a > 1)
+            {
+                q = a / m;
+                t = m;
+                m = a % m; a = t;
+                t = x0;
+                x0 = x1 - q * x0;
+                x1 = t;
+            }
+
+            if (x1 < 0)
+                x1 += m0;
+
+            return x1;
+        }
     }
 }

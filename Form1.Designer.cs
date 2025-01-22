@@ -35,6 +35,11 @@
             this.decryption_label = new System.Windows.Forms.Label();
             this.encryption_button = new System.Windows.Forms.Button();
             this.decrypting_button = new System.Windows.Forms.Button();
+            this.public_key = new System.Windows.Forms.TextBox();
+            this.private_key = new System.Windows.Forms.TextBox();
+            this.public_key_label = new System.Windows.Forms.Label();
+            this.private_key_label = new System.Windows.Forms.Label();
+            this.los_button = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // encryption_field
@@ -43,7 +48,7 @@
             this.encryption_field.Margin = new System.Windows.Forms.Padding(4);
             this.encryption_field.Multiline = true;
             this.encryption_field.Name = "encryption_field";
-            this.encryption_field.Size = new System.Drawing.Size(933, 190);
+            this.encryption_field.Size = new System.Drawing.Size(539, 190);
             this.encryption_field.TabIndex = 0;
             // 
             // encryption_label
@@ -61,7 +66,7 @@
             this.rsa_label.AutoSize = true;
             this.rsa_label.Cursor = System.Windows.Forms.Cursors.Default;
             this.rsa_label.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.rsa_label.Location = new System.Drawing.Point(112, 23);
+            this.rsa_label.Location = new System.Drawing.Point(246, 25);
             this.rsa_label.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.rsa_label.Name = "rsa_label";
             this.rsa_label.Size = new System.Drawing.Size(198, 39);
@@ -75,7 +80,7 @@
             this.decryption_field.Margin = new System.Windows.Forms.Padding(4);
             this.decryption_field.Multiline = true;
             this.decryption_field.Name = "decryption_field";
-            this.decryption_field.Size = new System.Drawing.Size(933, 200);
+            this.decryption_field.Size = new System.Drawing.Size(539, 200);
             this.decryption_field.TabIndex = 3;
             // 
             // decryption_label
@@ -90,7 +95,7 @@
             // 
             // encryption_button
             // 
-            this.encryption_button.Location = new System.Drawing.Point(920, 315);
+            this.encryption_button.Location = new System.Drawing.Point(629, 316);
             this.encryption_button.Margin = new System.Windows.Forms.Padding(4);
             this.encryption_button.Name = "encryption_button";
             this.encryption_button.Size = new System.Drawing.Size(100, 28);
@@ -101,7 +106,7 @@
             // 
             // decrypting_button
             // 
-            this.decrypting_button.Location = new System.Drawing.Point(920, 569);
+            this.decrypting_button.Location = new System.Drawing.Point(632, 547);
             this.decrypting_button.Margin = new System.Windows.Forms.Padding(4);
             this.decrypting_button.Name = "decrypting_button";
             this.decrypting_button.Size = new System.Drawing.Size(100, 28);
@@ -110,11 +115,63 @@
             this.decrypting_button.UseVisualStyleBackColor = true;
             this.decrypting_button.Click += new System.EventHandler(this.decryption_button_Click);
             // 
+            // public_key
+            // 
+            this.public_key.Location = new System.Drawing.Point(781, 140);
+            this.public_key.Multiline = true;
+            this.public_key.Name = "public_key";
+            this.public_key.Size = new System.Drawing.Size(180, 51);
+            this.public_key.TabIndex = 7;
+            // 
+            // private_key
+            // 
+            this.private_key.Location = new System.Drawing.Point(781, 272);
+            this.private_key.Multiline = true;
+            this.private_key.Name = "private_key";
+            this.private_key.Size = new System.Drawing.Size(180, 51);
+            this.private_key.TabIndex = 8;
+            // 
+            // public_key_label
+            // 
+            this.public_key_label.AutoSize = true;
+            this.public_key_label.Location = new System.Drawing.Point(825, 120);
+            this.public_key_label.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.public_key_label.Name = "public_key_label";
+            this.public_key_label.Size = new System.Drawing.Size(73, 16);
+            this.public_key_label.TabIndex = 9;
+            this.public_key_label.Text = "Public KEY";
+            // 
+            // private_key_label
+            // 
+            this.private_key_label.AutoSize = true;
+            this.private_key_label.Location = new System.Drawing.Point(825, 253);
+            this.private_key_label.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.private_key_label.Name = "private_key_label";
+            this.private_key_label.Size = new System.Drawing.Size(78, 16);
+            this.private_key_label.TabIndex = 10;
+            this.private_key_label.Text = "Private KEY";
+            // 
+            // los_button
+            // 
+            this.los_button.Location = new System.Drawing.Point(818, 439);
+            this.los_button.Margin = new System.Windows.Forms.Padding(4);
+            this.los_button.Name = "los_button";
+            this.los_button.Size = new System.Drawing.Size(100, 28);
+            this.los_button.TabIndex = 14;
+            this.los_button.Text = "New Keys";
+            this.los_button.UseVisualStyleBackColor = true;
+            this.los_button.Click += new System.EventHandler(this.los_button_Click);
+            // 
             // window_application
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1189, 700);
+            this.ClientSize = new System.Drawing.Size(1027, 615);
+            this.Controls.Add(this.los_button);
+            this.Controls.Add(this.private_key_label);
+            this.Controls.Add(this.public_key_label);
+            this.Controls.Add(this.private_key);
+            this.Controls.Add(this.public_key);
             this.Controls.Add(this.decrypting_button);
             this.Controls.Add(this.encryption_button);
             this.Controls.Add(this.decryption_label);
@@ -139,6 +196,11 @@
         private System.Windows.Forms.Label decryption_label;
         private System.Windows.Forms.Button encryption_button;
         private System.Windows.Forms.Button decrypting_button;
+        private System.Windows.Forms.TextBox public_key;
+        private System.Windows.Forms.TextBox private_key;
+        private System.Windows.Forms.Label public_key_label;
+        private System.Windows.Forms.Label private_key_label;
+        private System.Windows.Forms.Button los_button;
     }
 }
 
